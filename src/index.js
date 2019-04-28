@@ -15,6 +15,7 @@ import {
   Text,
   View,
   ViewPropTypes,
+  I18nManager,
 } from 'react-native';
 
 const SwipeoutBtn = createReactClass({
@@ -76,20 +77,20 @@ const SwipeoutBtn = createReactClass({
     if (btn.color) styleSwipeoutBtnText.push({color: btn.color });
 
     return (
-      <NativeButton
-        onPress={this.props.onPress}
-        underlayColor={this.props.underlayColor}
-        disabled={this.props.disabled}
-        style={[styles.swipeoutBtnTouchable, styleSwipeoutBtn]}
-        textStyle={styleSwipeoutBtnText}>
-        {
-          (btn.component ?
-            <View style={styleSwipeoutBtnComponent}>{btn.component}</View>
-            :
-            btn.text
-          )
-        }
-      </NativeButton>
+        <NativeButton
+            onPress={this.props.onPress}
+            underlayColor={this.props.underlayColor}
+            disabled={this.props.disabled}
+            style={[styles.swipeoutBtnTouchable, styleSwipeoutBtn]}
+            textStyle={styleSwipeoutBtnText}>
+          {
+            (btn.component ?
+                    <View style={styleSwipeoutBtnComponent}>{btn.component}</View>
+                    :
+                    btn.text
+            )
+          }
+        </NativeButton>
     );
   }
 });
@@ -141,10 +142,10 @@ const Swipeout = createReactClass({
     this._panResponder = PanResponder.create({
       onStartShouldSetPanResponder: (event, gestureState) => true,
       onStartShouldSetPanResponderCapture: (event, gestureState) =>
-        this.state.openedLeft || this.state.openedRight,
+          this.state.openedLeft || this.state.openedRight,
       onMoveShouldSetPanResponderCapture: (event, gestureState) =>
-        Math.abs(gestureState.dx) > this.props.sensitivity &&
-        Math.abs(gestureState.dy) <= this.props.sensitivity,
+          Math.abs(gestureState.dx) > this.props.sensitivity &&
+          Math.abs(gestureState.dy) <= this.props.sensitivity,
       onPanResponderGrant: this._handlePanResponderGrant,
       onPanResponderMove: this._handlePanResponderMove,
       onPanResponderRelease: this._handlePanResponderEnd,
@@ -181,12 +182,12 @@ const Swipeout = createReactClass({
 
   _handlePanResponderMove: function (e: Object, gestureState: Object) {
     if (this.props.disabled) return;
-    var posX = gestureState.dx;
+    var posX = gestureState.dx * (I18nManager.isRTL ? -1 : 1);
     var posY = gestureState.dy;
     var leftWidth = this.state.btnsLeftWidth;
     var rightWidth = this.state.btnsRightWidth;
-    if (this.state.openedRight) var posX = gestureState.dx - rightWidth;
-    else if (this.state.openedLeft) var posX = gestureState.dx + leftWidth;
+    if (this.state.openedRight) var posX = (gestureState.dx * (I18nManager.isRTL ? -1 : 1)) - rightWidth;
+    else if (this.state.openedLeft) var posX = (gestureState.dx * (I18nManager.isRTL ? -1 : 1)) + leftWidth;
 
     //  prevent scroll if moveX is true
     var moveX = Math.abs(posX) > Math.abs(posY);
@@ -206,7 +207,7 @@ const Swipeout = createReactClass({
 
   _handlePanResponderEnd: function (e: Object, gestureState: Object) {
     if (this.props.disabled) return;
-    var posX = gestureState.dx;
+    var posX = gestureState.dx * (I18nManager.isRTL ? -1 : 1);
     var contentPos = this.state.contentPos;
     var contentWidth = this.state.contentWidth;
     var btnsLeftWidth = this.state.btnsLeftWidth;
@@ -253,6 +254,10 @@ const Swipeout = createReactClass({
   },
 
   _rubberBandEasing: function (value, limit) {
+    if (I18nManager.isRTL) {
+      value *= -1
+      limit *= -1
+    }
     if (value < 0 && value < limit) return limit - Math.pow(limit - value, 0.85);
     else if (value > 0 && value > limit) return limit + Math.pow(value - limit, 0.85);
     return value;
@@ -385,18 +390,18 @@ const Swipeout = createReactClass({
     var isLeftVisible = posX > 0;
 
     return (
-      <View style={styleSwipeout}>
-        <View
-          ref={node => this.swipeoutContent = node}
-          style={styleContent}
-          onLayout={this._onLayout}
-          {...this._panResponder.panHandlers}
-        >
-          {this.props.children}
+        <View style={styleSwipeout}>
+          <View
+              ref={node => this.swipeoutContent = node}
+              style={styleContent}
+              onLayout={this._onLayout}
+              {...this._panResponder.panHandlers}
+          >
+            {this.props.children}
+          </View>
+          {this._renderButtons(this.props.right, isRightVisible, styleRight)}
+          {this._renderButtons(this.props.left, isLeftVisible, styleLeft)}
         </View>
-        {this._renderButtons(this.props.right, isRightVisible, styleRight)}
-        {this._renderButtons(this.props.left, isLeftVisible, styleLeft)}
-      </View>
     );
   },
 
@@ -415,26 +420,26 @@ const Swipeout = createReactClass({
       </View>);
     } else {
       return (
-        <View />
+          <View />
       );
     }
   },
 
   _renderButton: function (btn, i) {
     return (
-      <SwipeoutBtn
-        backgroundColor={btn.backgroundColor}
-        color={btn.color}
-        component={btn.component}
-        disabled={btn.disabled}
-        height={this.state.contentHeight}
-        key={i}
-        onPress={() => this._autoClose(btn)}
-        text={btn.text}
-        type={btn.type}
-        underlayColor={btn.underlayColor}
-        width={this.state.btnWidth}
-      />
+        <SwipeoutBtn
+            backgroundColor={btn.backgroundColor}
+            color={btn.color}
+            component={btn.component}
+            disabled={btn.disabled}
+            height={this.state.contentHeight}
+            key={i}
+            onPress={() => this._autoClose(btn)}
+            text={btn.text}
+            type={btn.type}
+            underlayColor={btn.underlayColor}
+            width={this.state.btnWidth}
+        />
     );
   }
 })
