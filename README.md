@@ -16,7 +16,7 @@ See example/index.ios.js for a more detailed example.
 See the [Wiki](https://github.com/sm-hejazi/react-native-swipeout-rtl/wiki) usage tips.
 
 ```js
-import Swipeout from 'react-native-swipeout';
+import Swipeout from 'react-native-swipeout-rtl';
 
 // Buttons
 var swipeoutBtns = [
