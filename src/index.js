@@ -3,6 +3,7 @@ import NativeButton from './NativeButton';
 import styles from './styles';
 
 import React, {
+
   Component,
 } from 'react';
 import PropTypes from 'prop-types';
